@@ -36,9 +36,12 @@ class ProductSerializer(serializers.ModelSerializer):
             return None
         return reverse("product-edit", kwargs={'pk': obj.pk}, request=request)
 
+    email = serializers.EmailField(write_only=True)
+
     class Meta:
         model = Product
         fields = [
+            'email',
             'edit_url',
             'view_url',
             'pk',
@@ -48,3 +51,13 @@ class ProductSerializer(serializers.ModelSerializer):
             'sale_price',
             'discount'
         ]
+
+    def create(self, validated_data):
+        # email = validated_data.pop('email')
+        obj = super().create(validated_data)
+        # print(email, obj)
+        return obj
+
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title')
+        return super().update(instance, validated_data)
