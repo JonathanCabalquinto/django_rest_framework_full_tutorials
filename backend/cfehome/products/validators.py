@@ -17,7 +17,7 @@ def validate_title(value):
 def validate_title_no_hello(value):
     if "hello" in value.lower():
         raise serializers.ValidationError(
-            f"Hello is not allowed")
+            f"{value} is not allowed")
 
 
 unique_product_title = UniqueValidator(queryset=Product.objects.all())

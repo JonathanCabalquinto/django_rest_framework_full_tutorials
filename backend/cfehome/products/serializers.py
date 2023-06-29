@@ -37,7 +37,7 @@ class ProductSerializer(serializers.ModelSerializer):
             return None
         return reverse("product-edit", kwargs={'pk': obj.pk}, request=request)
 
-    email = serializers.EmailField(write_only=True)
+    # email = serializers.EmailField(write_only=True)
 
     title = serializers.CharField(
         validators=[validate_title_no_hello, unique_product_title])
@@ -46,7 +46,8 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            'email',
+            # 'user',
+            # 'email',
             'edit_url',
             'view_url',
             # 'name',
@@ -58,20 +59,21 @@ class ProductSerializer(serializers.ModelSerializer):
             'discount'
         ]
 
-    def create(self, validated_data):
-        # email = validated_data.pop('email')
-        obj = super().create(validated_data)
-        # print(email, obj)
-        return obj
+    # def create(self, validated_data):
+    #     # email = validated_data.pop('email')
+    #     obj = super().create(validated_data)
+    #     # print(email, obj)
+    #     return obj
 
-    def update(self, instance, validated_data):
-        instance.title = validated_data.get('title')
-        return super().update(instance, validated_data)
+    # def update(self, instance, validated_data):
+    #     instance.title = validated_data.get('title')
+    #     return super().update(instance, validated_data)
 
     # Custom Serilizer First Approach
     # 1 Approch
 
     # def validate_title(self, value):
+    #     request = self.context.get('request')
     #     qs = Product.objects.filter(title__exact=value)
     #     if qs.exists():
     #         raise serializers.ValidationError(
