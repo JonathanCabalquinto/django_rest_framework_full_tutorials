@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from .models import Product
+from .validators import unique_product_title, validate_title_no_hello
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -38,12 +39,17 @@ class ProductSerializer(serializers.ModelSerializer):
 
     email = serializers.EmailField(write_only=True)
 
+    title = serializers.CharField(
+        validators=[validate_title_no_hello, unique_product_title])
+    # name = serializers.CharField(source='title', read_only=True)
+
     class Meta:
         model = Product
         fields = [
             'email',
             'edit_url',
             'view_url',
+            # 'name',
             'pk',
             'title',
             'content',
@@ -61,3 +67,15 @@ class ProductSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title')
         return super().update(instance, validated_data)
+
+    # Custom Serilizer First Approach
+    # 1 Approch
+
+    # def validate_title(self, value):
+    #     qs = Product.objects.filter(title__exact=value)
+    #     if qs.exists():
+    #         raise serializers.ValidationError(
+    #             f"{value} is already a product name")
+    #     return True
+
+    # Note: exact and iexact
