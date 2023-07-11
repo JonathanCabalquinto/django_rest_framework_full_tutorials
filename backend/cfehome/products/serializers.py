@@ -2,10 +2,41 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 from .models import Product
 from .validators import unique_product_title, validate_title_no_hello
+from api.serializers import UserPublicSerializer
+
+
+class ProductInlineSerilizer(serializers.Serializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='product-detail',
+        lookup_field='pk',
+        read_only=True
+    )
+    title = serializers.CharField(read_only=True)
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = [
+            'owner',
+            # 'email',
+            'edit_url',
+            'view_url',
+            # 'name',
+            'pk',
+            'title',
+            'content',
+            'price',
+            'sale_price',
+            'discount',
+            'related_products'
+        ]
+
+    # user = UserPublicSerializer(read_only=True)
+    owner = UserPublicSerializer(source='user', read_only=True)
     discount = serializers.SerializerMethodField(read_only=True)
+    related_products = ProductInlineSerilizer(
+        source='user.product_set.all', read_only=True, many=True)
 
     def get_discount(self, obj):
         if not hasattr(obj, 'id'):
@@ -30,34 +61,16 @@ class ProductSerializer(serializers.ModelSerializer):
     )
 
     edit_url = serializers.SerializerMethodField(read_only=True)
+    # email = serializers.EmailField(write_only=True)
+    title = serializers.CharField(
+        validators=[validate_title_no_hello, unique_product_title])
+    # name = serializers.CharField(source='title', read_only=True)
 
     def get_edit_url(self, obj):
         request = self.context.get('request')
         if request is None:
             return None
         return reverse("product-edit", kwargs={'pk': obj.pk}, request=request)
-
-    # email = serializers.EmailField(write_only=True)
-
-    title = serializers.CharField(
-        validators=[validate_title_no_hello, unique_product_title])
-    # name = serializers.CharField(source='title', read_only=True)
-
-    class Meta:
-        model = Product
-        fields = [
-            # 'user',
-            # 'email',
-            'edit_url',
-            'view_url',
-            # 'name',
-            'pk',
-            'title',
-            'content',
-            'price',
-            'sale_price',
-            'discount'
-        ]
 
     # def create(self, validated_data):
     #     # email = validated_data.pop('email')
